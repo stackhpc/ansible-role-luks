@@ -1,6 +1,6 @@
 ---
 galaxy_info:
-
+  role_name: luks
   author: Will Szumski
   description: Sets up LUKS encryption
 
