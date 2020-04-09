@@ -14,11 +14,6 @@
   with_items: "{{ luks_devices }}"
   tags: key-setup
 
-- name: test
-  debug:
-    var: ansible_version.full
-  tags: skip_when_testing_docker
-
 - name: Create the luks device
   vars:
     filename: *key
