@@ -21,7 +21,7 @@ install:
 
 script:
   - molecule lint
-  - sudo -E $VENV/molecule test
+  - sudo bash -c ". $VENV/activate && molecule test"
 
 after_failure:
   - echo "vagrant error log:"
