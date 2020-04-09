@@ -66,6 +66,40 @@ Tearing down the encrypted device, `cryptotest`:
 NOTE: Teardown does not delete the key files or the data. You should
 use some other means of doing this if required.
 
+Testing
+-------
+
+Be default, vagrant with the libvirt provider is used for testing. It is possible to run
+a reduced set of tests using the docker molecule driver.
+
+To run the vagrant tests you need to install the `python-vagrant`, `molecule` and `ansible` pip
+packages.
+
+```
+pip install 'molecule<3.0.0' ansible===2.9.6 python-vagrant
+```
+
+You will also need to have installed vagrant and the vagrant libvirt provider. For debian
+based distributions you can use something like:
+
+```
+wget -nv https://releases.hashicorp.com/vagrant/2.2.7/vagrant_2.2.7_x86_64.deb
+sudo dpkg -i vagrant_2.2.7_x86_64.deb
+vagrant plugin install vagrant-libvirt
+```
+
+You can then run the tests using the command:
+
+```
+molecule test
+```
+
+or to use the docker scenario:
+
+```
+molecule test -s docker
+```
+
 License
 -------
 
