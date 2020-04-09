@@ -6,9 +6,6 @@ language: python
 install:
   # Install libvrt & KVM
   - sudo apt-get update && sudo apt-get install -y bridge-utils dnsmasq-base ebtables libvirt-bin libvirt-dev qemu-kvm qemu-utils ruby-dev
-  - sudo adduser $USER libvirt
-  - echo . $(dirname $(which python))/activate >> ~/.bashrc
-  - newgrp libvirt
 
   # Download Vagrant & Install Vagrant package
   - sudo wget -nv https://releases.hashicorp.com/vagrant/2.2.7/vagrant_2.2.7_x86_64.deb
