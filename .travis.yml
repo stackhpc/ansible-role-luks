@@ -21,7 +21,7 @@ install:
 
 script:
   - molecule lint
-  - molecule test
+  - sudo -E molecule test
 
 notifications:
   webhooks: https://galaxy.ansible.com/api/v1/notifications/
