@@ -23,5 +23,9 @@ script:
   - molecule lint
   - sudo -E molecule test
 
+after_failure:
+  - echo "vagrant error log:"
+  - cat /home/travis/.cache/molecule/ansible-role-luks/default/vagrant-centos-7-molecule.err || true
+
 notifications:
   webhooks: https://galaxy.ansible.com/api/v1/notifications/
