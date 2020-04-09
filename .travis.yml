@@ -6,7 +6,7 @@ language: python
 install:
   # Install libvrt & KVM
   - sudo apt-get update && sudo apt-get install -y bridge-utils dnsmasq-base ebtables libvirt-bin libvirt-dev qemu-kvm qemu-utils ruby-dev
-  - sudo sh -c "echo . $(dirname $(which python))/activate >> ~root/.bashrc"
+  - export VENV=$(dirname $(which python))
   # Download Vagrant & Install Vagrant package
   - sudo wget -nv https://releases.hashicorp.com/vagrant/2.2.7/vagrant_2.2.7_x86_64.deb
   - sudo dpkg -i vagrant_2.2.7_x86_64.deb
@@ -21,12 +21,11 @@ install:
 
 script:
   - molecule lint
-    # Avoid dash for non-login shells
-  - sudo bash -c 'molecule test'
+  - sudo -E $VENV/molecule test
 
 after_failure:
   - echo "vagrant error log:"
-  - sudo cat ~/.cache/molecule/ansible-role-luks/default/vagrant-centos-7-molecule.err || echo "Vagrant error log not found"
+  - sudo cat /root/.cache/molecule/ansible-role-luks/default/vagrant-centos-7-molecule.err || echo "Vagrant error log not found"
 
 notifications:
   webhooks: https://galaxy.ansible.com/api/v1/notifications/
