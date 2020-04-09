@@ -21,7 +21,7 @@ install:
 
 script:
   - molecule lint
-  - sudo -E molecule test
+  - molecule test
 
 after_failure:
   - echo "vagrant error log:"
