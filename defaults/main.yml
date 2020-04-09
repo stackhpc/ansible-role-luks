@@ -1,2 +1,20 @@
 ---
 # defaults file for luks
+
+# Definitions of the devices you want to create. Definition of keys:
+#  - name : The name of the device under /dev/mapper, e.g with if the name
+#            is set to crypto, the device that would be created would be
+#            `/dev/mapper/crypto`
+# - keyfile: (optional) Path to a pre-generated keyfile. Key generation is skipped.
+# - device: Absolute path to the block device you want to encrypt, e.g: /dev/sda1
+luks_devices: []
+
+# The directory where the keys are stored
+luks_keys_path: /etc/luks-keys
+
+# One of: setup or teardown
+luks_action: setup
+
+# Controls whether or not this role should install any OS packages.
+# This may be useful if your OS is not supported.
+luks_install_dependencies: true

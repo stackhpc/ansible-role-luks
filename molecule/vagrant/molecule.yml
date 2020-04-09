@@ -4,14 +4,16 @@ dependency:
 driver:
   name: vagrant
   provider:
-    name: virtualbox
+    name: libvirt
 lint:
   name: yamllint
 platforms:
-  - name: bento-centos-7-vagrant
-    box: bento/centos-7
+  - name: centos-7-molecule
+    box: centos/7
     cpus: 1
     memory: 1024
+    provider_raw_config_args:
+      - "random :model => 'random'"
 provisioner:
   name: ansible
   options:
@@ -24,8 +26,9 @@ scenario:
   name: vagrant
 verifier:
   name: testinfra
-  directory: ../tests
+  directory: tests
   options:
     verbose: true
+    sudo: true
   lint:
     name: flake8

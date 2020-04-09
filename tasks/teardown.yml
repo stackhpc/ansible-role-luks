@@ -1,0 +1,21 @@
+---
+# tasks file for luks
+
+- name: Teardown devices
+  systemd:
+    daemon_reload: true
+    state: stopped
+    name: systemd-cryptsetup@{{ item.name }}.service
+  with_items: "{{ luks_devices }}"
+  become: true
+  tags: skip_when_testing_docker
+
+- name: Remove device from cryptab
+  vars:
+    filename: "{{ (item.device | replace('/', '-'))[1:] }}"
+  crypttab:
+    password: "{{ luks_keys_path }}/{{ filename }}"
+    backing_device: "{{ item.device }}"
+    name: "{{ item.name }}"
+    state: absent
+  with_items: "{{ luks_devices }}"

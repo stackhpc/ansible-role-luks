@@ -7,7 +7,7 @@ before_install:
   - sudo apt-get -qq update
 install:
   # workaround https://github.com/ansible/molecule/issues/2083
-  - pip install molecule==2.19 ansible==2.7.11
+  - pip install 'molecule<3.0.0' ansible===2.9.6
   # - pip install required driver (e.g. docker, python-vagrant, shade, boto, apache-libcloud)
   - pip install docker
 script:

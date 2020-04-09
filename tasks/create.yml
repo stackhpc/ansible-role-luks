@@ -1,0 +1,10 @@
+---
+
+- name: Create the luks device
+  luks_device:
+    device: "{{ item.device }}"
+    state: "present"
+    keyfile: "{{ luks_keys_path }}/{{ filename }}"
+  with_items: "{{ luks_devices }}"
+  tags: skip_when_testing_docker
+  become: true

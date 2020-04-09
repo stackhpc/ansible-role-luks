@@ -1,29 +1,70 @@
 luks
 =========
 
-Sets up LUKS encryption
+Sets up LUKS encryption.
 
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+None
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+See comments in `defaults/main.yml`.
+
 
 Dependencies
 ------------
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+None
 
-Example Playbook
-----------------
+Example Playbooks
+-----------------
 
-    - hosts: servers
-      roles:
-         - { role: luks, var_name: 42 }
+Generating the encryption keys automatically:
+
+```
+- name: Converge
+  hosts: all
+  vars:
+    luks_devices:
+      - device: /dev/loop0
+        name: cryptotest
+  roles:
+    - role: stackhpc.luks
+```
+
+Using a pre-generated key:
+
+```
+- name: Converge
+  hosts: all
+  vars:
+    luks_devices:
+      - device: /dev/loop0
+        name: cryptotest
+        keyfile: /path/to/key/on/ansible/host
+  roles:
+    - role: stackhpc.luks
+```
+
+Tearing down the encrypted device, `cryptotest`:
+
+```
+- name: Destroy
+  hosts: all
+  vars:
+    luks_devices:
+      - device: /dev/loop0
+        name: cryptotest
+    luks_action: teardown
+  roles:
+    - role: stackhpc.luks
+```
+
+NOTE: Teardown does not delete the key files or the data. You should
+use some other means of doing this if required.
 
 License
 -------

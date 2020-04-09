@@ -1,2 +1,6 @@
 ---
 # tasks file for luks
+- import_tasks: validate.yml
+  tags: validate
+
+- import_tasks: "{{ luks_action }}.yml"

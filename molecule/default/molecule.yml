@@ -16,6 +16,8 @@ provisioner:
   name: ansible
   options:
     become: true
+  ansible_args:
+    - --skip-tags=skip_when_testing_docker
   lint:
     name: ansible-lint
     options:

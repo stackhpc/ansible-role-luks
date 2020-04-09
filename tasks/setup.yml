@@ -1,0 +1,46 @@
+---
+# tasks file for luks
+- import_tasks: install.yml
+  tags: install
+  when: luks_install_dependencies
+
+- include_tasks: keysetup.yml
+  vars:
+    # replaces all slashes with dashes and strips the leading /
+    keysetup_keyname: &key "{{ (item.device | replace('/', '-'))[1:] }}"
+    keysetup_directory: "{{ luks_keys_path }}"
+    keysetup_action: "{{ 'copy' if 'keyfile' in item else 'generate' }}"
+    ketsetup_src: "{{ item.keyfile if 'keyfile' in item else '' }}"
+  with_items: "{{ luks_devices }}"
+  tags: key-setup
+
+- name: test
+  debug:
+    var: ansible_version.full
+  tags: skip_when_testing_docker
+
+- name: Create the luks device
+  vars:
+    filename: *key
+    compat: "{{ ansible_version.full is version('2.8.0', '<') }}"
+  include_tasks:
+    file: "{{ 'create_compat.yml' if compat else 'create.yml' }}"
+
+- name: Add the device to cryptab
+  vars:
+    filename: *key
+  crypttab:
+    password: "{{ luks_keys_path }}/{{ filename }}"
+    backing_device: "{{ item.device }}"
+    name: "{{ item.name }}"
+    state: present
+  with_items: "{{ luks_devices }}"
+
+- name: Setup devices
+  systemd:
+    daemon_reload: true
+    state: started
+    name: systemd-cryptsetup@{{ item.name }}.service
+  with_items: "{{ luks_devices }}"
+  become: true
+  tags: skip_when_testing_docker

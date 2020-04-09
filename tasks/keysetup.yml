@@ -1,0 +1,33 @@
+---
+
+- name: Ensure parent directory exists
+  file:
+    state: directory
+    path: "{{ keysetup_directory }}"
+    mode: 0770
+    owner: root
+    group: root
+  become: true
+
+- name: Generate a random key file
+  command: dd bs=512 count=4 if=/dev/random of={{ keysetup_directory }}/{{ keysetup_keyname }} iflag=fullblock
+  args:
+    creates: "{{ keysetup_directory }}/{{ keysetup_keyname }}"
+  become: true
+  when: keysetup_action == "generate"
+
+- name: Copy pre-generated file
+  copy:
+    src: "{{ keysetup_src }}"
+    dest: "{{ keysetup_directory }}/{{ keysetup_keyname }}"
+  become: true
+  when: keysetup_action == "copy"
+
+- name: Set permissions of keyfile
+  file:
+    path: "{{ keysetup_directory }}/{{ keysetup_keyname }}"
+    state: file
+    mode: "0660"
+    owner: root
+    group: root
+  become: true

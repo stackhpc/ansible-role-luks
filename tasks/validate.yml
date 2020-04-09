@@ -1,0 +1,8 @@
+---
+- name: Validate luks_devices
+  assert:
+    that:
+      - "'device' in item"
+      # must be absolute path
+      - "item.device.startswith('/')"
+  with_items: "{{ luks_devices }}"
