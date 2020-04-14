@@ -14,11 +14,6 @@
   with_items: "{{ luks_devices }}"
   tags: key-setup
 
-- name: test
-  debug:
-    var: ansible_version.full
-  tags: skip_when_testing_docker
-
 - name: Create the luks device
   vars:
     filename: *key
@@ -26,7 +21,7 @@
   include_tasks:
     file: "{{ 'create_compat.yml' if compat else 'create.yml' }}"
 
-- name: Add the device to cryptab
+- name: Add the device to crypt`tab
   vars:
     filename: *key
   crypttab:

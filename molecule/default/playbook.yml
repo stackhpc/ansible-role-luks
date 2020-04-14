@@ -7,6 +7,5 @@
         name: cryptotest
       - device: /dev/loop1
         name: cryptotest1
-    skip_when_testing_docker: true
   roles:
     - role: stackhpc.luks

@@ -2,22 +2,22 @@
 dependency:
   name: galaxy
 driver:
-  name: docker
+  name: vagrant
+  provider:
+    name: libvirt
 lint:
   name: yamllint
 platforms:
-  - name: centos7-docker
-    image: mplachter/docker-centos7-molecule
-    command: /usr/sbin/init
-    volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
-    privileged: true
+  - name: luks-molecule
+    box: ${MOLECULE_IMAGE:-centos/7}
+    cpus: 1
+    memory: 1024
+    provider_raw_config_args:
+      - "random :model => 'random'"
 provisioner:
   name: ansible
   options:
     become: true
-  ansible_args:
-    - --skip-tags=skip_when_testing_docker
   lint:
     name: ansible-lint
     options:
@@ -26,8 +26,9 @@ scenario:
   name: default
 verifier:
   name: testinfra
-  directory: ../tests
+  directory: tests
   options:
     verbose: true
+    sudo: true
   lint:
     name: flake8
