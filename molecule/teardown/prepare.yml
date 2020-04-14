@@ -1,0 +1,21 @@
+---
+- name: Prepare
+  hosts: all
+  gather_facts: false
+  vars:
+    block_devices:
+      - device: /dev/loop0
+        backing: /tmp/loop0
+      - device: /dev/loop1
+        backing: /tmp/loop1
+  tasks:
+    - name: Create files to back the block devices
+      command: dd if=/dev/zero of="{{ item.backing }}" bs=1024k count=100
+      args:
+        creates: "{{ item.backing }}"
+      with_items: "{{ block_devices }}"
+
+    - name: Create loopback devices
+      command: losetup {{ item.device }} "{{ item.backing }}"
+      with_items: "{{ block_devices }}"
+      become: true

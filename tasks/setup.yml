@@ -19,7 +19,7 @@
     filename: *key
     compat: "{{ ansible_version.full is version('2.8.0', '<') }}"
   include_tasks:
-    file: "{{ 'create_compat.yml' if compat else 'create.yml' }}"
+    file: "{{ 'create-compat.yml' if compat else 'create.yml' }}"
 
 - name: Add the device to crypt`tab
   vars:

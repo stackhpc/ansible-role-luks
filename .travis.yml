@@ -4,8 +4,10 @@ sudo: required
 language: python
 
 env:
-  - MOLECULE_IMAGE=centos/7
-  - MOLEUCLE_IMAGE=centos/8
+  - SCENARIO=default MOLECULE_IMAGE=centos/7
+  - SCENARIO=teardown MOLECULE_IMAGE=centos/7
+  - SCENARIO=default MOLECULE_IMAGE=centos/8
+  - SCENARIO=teardown MOLECULE_IMAGE=centos/8
 
 install:
   # Install libvrt & KVM
@@ -26,7 +28,7 @@ install:
 script:
   - molecule lint
   - export VENV=$(dirname $(which python))
-  - sudo bash -c ". $VENV/activate && molecule test"
+  - sudo bash -c ". $VENV/activate && molecule test -s $SCENARIO"
 
 after_failure:
   - echo "vagrant error log:"

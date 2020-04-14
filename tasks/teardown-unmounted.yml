@@ -1,0 +1,11 @@
+---
+
+- name: Determine which devices aren't mounted
+  luks_unmounted:
+  register: result
+  become: true
+
+- name: Teardown devices
+  include_tasks: teardown.yml
+  vars:
+    luks_devices: "{{ result.luks_devices }}"

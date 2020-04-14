@@ -68,6 +68,17 @@ Tearing down the encrypted device, `cryptotest`:
 NOTE: Teardown does not delete the key files or the data. You should
 use some other means of doing this if required.
 
+Tearing down all umounted devices:
+
+```
+- name: Destroy
+  hosts: all
+  vars:
+    luks_action: teardown-unmounted
+  roles:
+    - role: stackhpc.luks
+```
+
 Testing
 -------
 
@@ -101,6 +112,10 @@ or to use the docker scenario:
 ```
 molecule test -s docker
 ```
+
+other scenarios:
+
+- teardown: sets up two encrypted block devices, mounts one, performs a teardown-unmounted
 
 License
 -------
