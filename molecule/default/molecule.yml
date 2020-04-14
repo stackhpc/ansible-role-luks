@@ -8,8 +8,8 @@ driver:
 lint:
   name: yamllint
 platforms:
-  - name: centos-7-molecule
-    box: centos/7
+  - name: luks-molecule
+    box: ${MOLECULE_IMAGE:-centos/7}
     cpus: 1
     memory: 1024
     provider_raw_config_args:

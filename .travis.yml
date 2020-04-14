@@ -3,6 +3,10 @@ dist: bionic
 sudo: required
 language: python
 
+env:
+  - MOLECULE_IMAGE=centos/7
+  - MOLEUCLE_IMAGE=centos/8
+
 install:
   # Install libvrt & KVM
   - sudo apt-get update && sudo apt-get install -y bridge-utils dnsmasq-base ebtables libvirt-bin libvirt-dev qemu-kvm qemu-utils ruby-dev
@@ -26,7 +30,7 @@ script:
 
 after_failure:
   - echo "vagrant error log:"
-  - sudo cat /root/.cache/molecule/ansible-role-luks/default/vagrant-centos-7-molecule.err || true
+  - sudo cat /root/.cache/molecule/ansible-role-luks/default/vagrant-luks-molecule.err || true
 
 notifications:
   webhooks: https://galaxy.ansible.com/api/v1/notifications/
