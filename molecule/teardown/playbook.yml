@@ -1,0 +1,21 @@
+---
+- name: Converge
+  hosts: all
+  vars:
+    luks_devices:
+      - device: /dev/loop0
+        name: cryptotest
+      - device: /dev/loop1
+        name: cryptotest1
+  tasks:
+    - include_role:
+        name: stackhpc.luks
+    - name: Mount one device  # noqa 301
+      shell: |-
+        mkfs.ext4 /dev/mapper/cryptotest
+        mount /dev/mapper/cryptotest /mnt
+      become: true
+    - include_role:
+        name: stackhpc.luks
+      vars:
+        luks_action: teardown-unmounted
