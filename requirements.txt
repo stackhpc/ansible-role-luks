@@ -1,0 +1,2 @@
+# NOTE(mgoddard): Ansible 2.8.0 breaks ansible-lint.
+ansible>=2.7.0,<2.10.0 # GPLv3

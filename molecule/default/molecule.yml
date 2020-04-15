@@ -2,11 +2,14 @@
 dependency:
   name: galaxy
 driver:
-  name: vagrant
+  name: "vagrant"
   provider:
     name: libvirt
-lint:
-  name: yamllint
+lint: |
+  set -e
+  yamllint -c .yamllint .
+  ansible-lint
+  flake8 --ignore=E501,W504,E402
 platforms:
   - name: luks-molecule
     box: ${MOLECULE_IMAGE:-centos/7}
@@ -18,10 +21,7 @@ provisioner:
   name: ansible
   options:
     become: true
-  lint:
-    name: ansible-lint
-    options:
-      R: true
+
 scenario:
   name: default
 verifier:
@@ -30,5 +30,3 @@ verifier:
   options:
     verbose: true
     sudo: true
-  lint:
-    name: flake8

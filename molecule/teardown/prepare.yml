@@ -15,7 +15,7 @@
         creates: "{{ item.backing }}"
       with_items: "{{ block_devices }}"
 
-    - name: Create loopback devices
+    - name: Create loopback devices  # noqa: 301
       command: losetup {{ item.device }} "{{ item.backing }}"
       with_items: "{{ block_devices }}"
       become: true
