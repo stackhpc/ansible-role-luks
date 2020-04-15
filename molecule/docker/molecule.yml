@@ -3,8 +3,11 @@ dependency:
   name: galaxy
 driver:
   name: docker
-lint:
-  name: yamllint
+lint: |
+  set -e
+  yamllint -c .yamllint .
+  ansible-lint
+  flake8 --ignore=E501,W504,E402
 platforms:
   - name: centos7-docker
     image: mplachter/docker-centos7-molecule
@@ -18,10 +21,7 @@ provisioner:
     become: true
   ansible_args:
     - --skip-tags=skip_when_testing_docker
-  lint:
-    name: ansible-lint
-    options:
-      R: true
+  lint: ansible-lint
 scenario:
   name: docker
 verifier:
@@ -29,5 +29,3 @@ verifier:
   directory: ../tests
   options:
     verbose: true
-  lint:
-    name: flake8
