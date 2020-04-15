@@ -6,3 +6,4 @@ python-vagrant
 docker
 ansible-lint
 flake8
+pytest-ansible
