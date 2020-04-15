@@ -1,3 +1,4 @@
+---
 extends: default
 
 rules:
@@ -15,3 +16,4 @@ ignore: |
   roles
   virtenv
   venv
+  .tox
