@@ -4,3 +4,4 @@ molecule
 molecule-vagrant
 python-vagrant
 docker
+ansible-lint

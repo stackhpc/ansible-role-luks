@@ -26,7 +26,6 @@ install:
   - pip install tox
 
 script:
-  - molecule lint
   - export VENV=$(dirname $(which python))
   - tox -e py3
   - sudo bash -c ". $VENV/activate && MOLECULE_IMAGE=$MOLECULE_IMAGE tox -e molecule -- -s $SCENARIO"
