@@ -5,3 +5,4 @@ molecule-vagrant
 python-vagrant
 docker
 ansible-lint
+flake8
