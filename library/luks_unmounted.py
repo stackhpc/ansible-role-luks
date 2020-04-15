@@ -70,30 +70,67 @@ def parse_devices(header, lines):
     """Parses output of lsblk"""
     cols = parse_header(header)
     mappings = {}
-    name = None
+    flat = {}
+    parents = []
+    indent = 0
+    last = None
     for line in lines:
         index = 0
+        name = None
         mapping = {'children': [], 'parent': None}
         for col in cols:
             key = col[1]
-            value = line[index:index+col[0]].strip()
-            # handle tree structure, child devices start with `-
+            value = line[index:index + col[0]]
             if key == "NAME":
-                if value.startswith("`-"):
+                new_indent = len(value) - len(value.lstrip())
+                value = value.strip()
+                if value.startswith("`-") or value.startswith("|-"):
+                    # tree branch counts as indent
+                    new_indent += 2
+                if new_indent > indent:
+                    parents.append(last)
+                elif new_indent < indent:
+                    parents.pop()
+                indent = new_indent
+                # Trip off ascii art corresponding to branch, e.g `-
+                if value.startswith("`-") or value.startswith("|-"):
                     value = value[2:]
-                    mapping["parent"] = parent
-                else:
-                    parent = value
+                    mapping["parent"] = parents[-1] if parents else None
                 name = value
+            else:
+                value = value.strip()
             mapping[key] = value
             index += col[0]
         # Children are added to parent entry
         if mapping["parent"]:
-            parent = mapping["parent"]
-            mappings[parent]["children"].append(mapping)
+            last = mapping["parent"]
+            flat[last]["children"].append(mapping)
+            flat[name] = mapping
         else:
+            flat[name] = mapping
             mappings[name] = mapping
+        last = name
     return mappings
+
+
+def _check_recursive(device):
+    results = []
+    # We are only interested in mountpoint of leaf nodes
+    if device["FSTYPE"] == "crypto_LUKS" and \
+            not device["children"][0]["children"]:
+        child = device["children"][0]
+        if not child["MOUNTPOINT"]:
+            entry = {
+                "device": "/dev/%s" % device["NAME"],
+                "name": child["NAME"]
+            }
+            results.append(entry)
+    else:
+        for child in device["children"]:
+            result = _check_recursive(child)
+            if result:
+                results.extend(result)
+    return results
 
 
 def get_unmounted(module):
@@ -102,14 +139,9 @@ def get_unmounted(module):
     mappings = parse_devices(lines[0], lines[1:])
     luks_devices = []
     for master in mappings.values():
-        if master["FSTYPE"] == "crypto_LUKS":
-            for child in master["children"]:
-                if not child["MOUNTPOINT"]:
-                    entry = {
-                        "device": master["NAME"],
-                        "name": child["NAME"]
-                    }
-                    luks_devices.append(entry)
+        result = _check_recursive(master)
+        if result:
+            luks_devices.extend(result)
     return luks_devices
 
 
