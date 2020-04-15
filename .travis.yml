@@ -23,12 +23,13 @@ install:
   # Install vagrant-libvirt Vagrant plugin
   - sudo vagrant plugin install vagrant-libvirt
 
-  - pip install 'molecule<3.0.0' ansible===2.9.6 python-vagrant
+  - pip install tox
 
 script:
   - molecule lint
   - export VENV=$(dirname $(which python))
-  - sudo bash -c ". $VENV/activate && molecule test -s $SCENARIO"
+  - tox -e py3
+  - sudo bash -c ". $VENV/activate && MOLECULE_IMAGE=$MOLECULE_IMAGE tox -e molecule -- -s $SCENARIO"
 
 after_failure:
   - echo "vagrant error log:"
