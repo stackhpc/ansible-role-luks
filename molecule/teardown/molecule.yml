@@ -42,3 +42,4 @@ verifier:
   directory: tests
   options:
     verbose: true
+    sudo: true
