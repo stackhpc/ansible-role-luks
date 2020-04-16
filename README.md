@@ -79,6 +79,39 @@ Tearing down all umounted devices:
     - role: stackhpc.luks
 ```
 
+Tang/clevis
+------------
+
+You can run a tang server with:
+
+```
+docker run -d -p 8080:80 -v $(pwd)/persistent:/var/db/tang malaiwah/tang
+```
+
+An example playbook:
+
+```
+- name: Converge
+  hosts: all
+  vars:
+    luks_devices:
+      - device: /dev/vdb
+        name: cryptotest
+        mode: tang
+        tang_server: 192.168.121.1:8080
+        tang_adv: path/to/adv
+  roles:
+    - role: stackhpc.luks
+```
+
+You can retrive the `adv` file by running:
+
+```
+curl 192.168.121.1:8080/adv -O
+```
+
+This is used to verify the server identity.
+
 Testing
 -------
 

@@ -1,0 +1,12 @@
+---
+- name: Converge
+  hosts: all
+  vars:
+    luks_devices:
+      - device: /dev/vdb
+        name: cryptotest
+        mode: tang
+        tang_server: 192.168.121.1:8080
+        tang_adv: adv
+  roles:
+    - role: stackhpc.luks

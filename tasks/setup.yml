@@ -21,14 +21,27 @@
   include_tasks:
     file: "{{ 'create-compat.yml' if compat else 'create.yml' }}"
 
-- name: Add the device to crypt`tab
+- name: Setup tang devices
   vars:
     filename: *key
+    keypath: &keypath "{{ luks_keys_path }}/{{ filename }}"
+    mode: &mode "{{ item.mode | default('keyfile') }}"
+  include_tasks: tang.yml
+  when: mode == "tang"
+  with_items: "{{ luks_devices }}"
+
+- name: Add the device to crypttab
+  vars:
+    filename: *key
+    keypath: *keypath
+    mode: *mode
   crypttab:
-    password: "{{ luks_keys_path }}/{{ filename }}"
+    password: "{{ keypath if mode == 'keyfile' else 'none' }}"
+    opts: "{{ '_netdev' if mode == 'tang' else omit }}"
     backing_device: "{{ item.device }}"
     name: "{{ item.name }}"
     state: present
+  become: true
   with_items: "{{ luks_devices }}"
 
 - name: Setup devices
@@ -39,3 +52,36 @@
   with_items: "{{ luks_devices }}"
   become: true
   tags: skip_when_testing_docker
+
+- name: Ensure keys collection directory exists on localhost
+  file:
+    path: "{{ luks_key_collection_path }}/{{ inventory_hostname }}"
+    state: directory
+  when: luks_key_collection_path | default(false, true)
+  delegate_to: localhost
+
+- name: Collect keys
+  synchronize:
+    mode: pull
+    src: "{{ luks_keys_path }}/"
+    dest: keys/{{ inventory_hostname }}/
+    archive: false
+    recursive: true
+    # Updating times causes ansible to report a change
+    times: true
+  become: true
+  when: luks_key_collection_path | default(false, true)
+
+- name: Delete keys on remote machine
+  vars:
+    filename: *key
+    keypath: *keypath
+    mode: *mode
+  command: scrub -r "{{ keypath }}"
+  register: result
+  failed_when: "result.rc != 0 and 'does not exist' not in result.stderr"
+  changed_when: result.rc == 0
+  become: true
+  when:
+    - mode != "keyfile"
+  with_items: "{{ luks_devices }}"

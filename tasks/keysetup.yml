@@ -1,5 +1,12 @@
 ---
 
+- name: Check if luks enabled on device
+  command: cryptsetup isLuks "{{ item.device }}"
+  changed_when: false
+  register: isluks
+  failed_when: false
+  become: true
+
 - name: Ensure parent directory exists
   file:
     state: directory
@@ -8,20 +15,28 @@
     owner: root
     group: root
   become: true
+  when: isluks.rc != 0
 
 - name: Generate a random key file
-  command: dd bs=512 count=4 if=/dev/random of={{ keysetup_directory }}/{{ keysetup_keyname }} iflag=fullblock
+  # Old verisons of clevis have issues with long keys
+  shell: |-
+    set -o pipefail
+    head /dev/random | tr -dc 'A-Za-z0-9!"#$%&'\''()*+,-./:;<=>?@[\]^_`{|}~' | head -c 16 > {{ keysetup_directory }}/{{ keysetup_keyname }}
   args:
     creates: "{{ keysetup_directory }}/{{ keysetup_keyname }}"
   become: true
-  when: keysetup_action == "generate"
+  when:
+    - keysetup_action == "generate"
+    - isluks.rc != 0
 
 - name: Copy pre-generated file
   copy:
     src: "{{ keysetup_src }}"
     dest: "{{ keysetup_directory }}/{{ keysetup_keyname }}"
   become: true
-  when: keysetup_action == "copy"
+  when:
+    - keysetup_action == "copy"
+    - isluks.rc != 0
 
 - name: Set permissions of keyfile
   file:
@@ -31,3 +46,4 @@
     owner: root
     group: root
   become: true
+  when: isluks.rc != 0

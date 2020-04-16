@@ -1,0 +1,33 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: "vagrant"
+  provider:
+    name: libvirt
+lint: |
+  set -e
+  yamllint -c .yamllint .
+  ansible-lint
+  flake8 --ignore=E501,W504,E402
+platforms:
+  - name: luks-molecule
+    box: ${MOLECULE_IMAGE:-centos/7}
+    cpus: 1
+    memory: 1024
+    provider_raw_config_args:
+      - "random :model => 'random'"
+      - "storage :file"
+provisioner:
+  name: ansible
+  options:
+    become: true
+
+scenario:
+  name: default
+verifier:
+  name: testinfra
+  directory: tests
+  options:
+    verbose: true
+    sudo: true

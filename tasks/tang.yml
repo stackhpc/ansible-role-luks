@@ -1,0 +1,43 @@
+---
+
+- name: Copy to a known location
+  copy:
+    src: "{{ item.tang_adv }}"
+    dest: /tmp/adv
+
+- name: Check the if slot used
+  command: |-
+    luksmeta show -d {{ item.device }} -s 3
+  register: result
+  failed_when: false
+  become: true
+  changed_when: false
+
+- name: Create tang pin
+  # We always put it in slot 3 so we can detect it
+  command: |-
+    clevis luks bind -s 3 -f -k {{ keypath }} -d {{ item.device }} tang '{ "url": "{{ item.tang_server }}", "adv": "/tmp/adv"}'
+  become: true
+  when: not result.stdout.strip() or result.rc != 0
+  changed_when: false
+
+- name: Open the device
+  command: clevis luks unlock -d {{ item.device }} -n "{{ item.name }}"
+  register: result
+  changed_when: result.rc == 0
+  failed_when: "result.rc != 0 and 'already exists' not in result.stderr"
+  become: true
+
+- name: Remove the key
+  command: cryptsetup luksRemoveKey {{ item.device }} "{{ keypath }}"
+  register: result
+  changed_when: result.rc == 0
+  failed_when: false
+  when: item.tang_remove_key | default(true)
+  become: true
+
+- name: Enable mounting on boot
+  systemd:
+    name: clevis-luks-askpass.path
+    enabled: true
+  become: true
