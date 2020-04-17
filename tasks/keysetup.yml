@@ -17,11 +17,8 @@
   become: true
   when: isluks.rc != 0
 
-- name: Generate a random key file
-  # Old verisons of clevis have issues with long keys
-  shell: |-
-    set -o pipefail
-    head /dev/random | tr -dc 'A-Za-z0-9!"#$%&'\''()*+,-./:;<=>?@[\]^_`{|}~' | head -c 16 > {{ keysetup_directory }}/{{ keysetup_keyname }}
+- name: Generate a random key file  # noqa 305
+  shell: "{{ keysetup_cmd }}"
   args:
     creates: "{{ keysetup_directory }}/{{ keysetup_keyname }}"
   become: true
