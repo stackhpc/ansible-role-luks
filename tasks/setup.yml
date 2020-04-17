@@ -26,8 +26,7 @@
   vars:
     filename: *key
     compat: "{{ ansible_version.full is version('2.8.0', '<') }}"
-  include_tasks:
-    file: "{{ 'create-compat.yml' if compat else 'create.yml' }}"
+  include_tasks: "{{ 'create-compat.yml' if compat else 'create.yml' }}"
 
 - name: Setup tang devices
   vars:
