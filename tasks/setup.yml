@@ -71,7 +71,7 @@
   synchronize:
     mode: pull
     src: "{{ luks_keys_path }}/"
-    dest: keys/{{ inventory_hostname }}/
+    dest: "{{ luks_key_collection_path }}/{{ inventory_hostname }}/"
     archive: false
     recursive: true
     # Updating times causes ansible to report a change
