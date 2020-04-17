@@ -14,6 +14,7 @@
     mode: &mode "{{ item.mode | default('keyfile') }}"
     dd: dd bs=512 count=4 if=/dev/random of={{ keysetup_directory }}/{{ keysetup_keyname }} iflag=fullblock
     # Old verisons of clevis have issues with long keys / some characters
+    # See: https://github.com/latchset/clevis/issues/97
     tr: |-
       set -o pipefail
       head /dev/random | tr -dc 'A-Za-z0-9!"#$%&'\''()*+,-./:;<=>?@[\]^_`{|}~' | head -c 16 > {{ keysetup_directory }}/{{ keysetup_keyname }}
