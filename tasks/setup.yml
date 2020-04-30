@@ -21,7 +21,7 @@
   include_tasks:
     file: "{{ 'create-compat.yml' if compat else 'create.yml' }}"
 
-- name: Add the device to crypt`tab
+- name: Add the device to crypttab
   vars:
     filename: *key
   crypttab:
