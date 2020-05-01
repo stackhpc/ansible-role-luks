@@ -11,6 +11,14 @@
     keysetup_directory: "{{ luks_keys_path }}"
     keysetup_action: "{{ 'copy' if 'keyfile' in item else 'generate' }}"
     ketsetup_src: "{{ item.keyfile if 'keyfile' in item else '' }}"
+    mode: &mode "{{ item.mode | default('keyfile') }}"
+    dd: dd bs=512 count=4 if=/dev/random of={{ keysetup_directory }}/{{ keysetup_keyname }} iflag=fullblock
+    # Old verisons of clevis have issues with long keys / some characters
+    # See: https://github.com/latchset/clevis/issues/97
+    tr: |-
+      set -o pipefail
+      head /dev/random | tr -dc 'A-Za-z0-9!"#$%&'\''()*+,-./:;<=>?@[\]^_`{|}~' | head -c 16 > {{ keysetup_directory }}/{{ keysetup_keyname }}
+    keysetup_cmd: "{{ dd if mode == 'keyfile' else tr }}"
   with_items: "{{ luks_devices }}"
   tags: key-setup
 
@@ -18,24 +26,73 @@
   vars:
     filename: *key
     compat: "{{ ansible_version.full is version('2.8.0', '<') }}"
-  include_tasks:
-    file: "{{ 'create-compat.yml' if compat else 'create.yml' }}"
+  include_tasks: "{{ 'create-compat.yml' if compat else 'create.yml' }}"
+
+
+- name: Setup tang devices
+  vars:
+    filename: *key
+    keypath: &keypath "{{ luks_keys_path }}/{{ filename }}"
+    mode: *mode
+  include_tasks: tang.yml
+  when: mode == "tang"
+  with_items: "{{ luks_devices }}"
 
 - name: Add the device to crypttab
   vars:
     filename: *key
+    keypath: *keypath
+    mode: *mode
   crypttab:
-    password: "{{ luks_keys_path }}/{{ filename }}"
+    password: "{{ keypath if mode == 'keyfile' else 'none' }}"
+    opts: "{{ '_netdev' if mode == 'tang' else omit }}"
     backing_device: "{{ item.device }}"
     name: "{{ item.name }}"
     state: present
+  become: true
   with_items: "{{ luks_devices }}"
 
 - name: Setup devices
+  vars:
+    mode: *mode
   systemd:
     daemon_reload: true
     state: started
     name: systemd-cryptsetup@{{ item.name }}.service
   with_items: "{{ luks_devices }}"
+  when: mode == "keyfile"
   become: true
   tags: skip_when_testing_docker
+
+- name: Ensure keys collection directory exists on localhost
+  file:
+    path: "{{ luks_key_collection_path }}/{{ inventory_hostname }}"
+    state: directory
+  when: luks_key_collection_path | default(false, true)
+  delegate_to: localhost
+
+- name: Collect keys
+  synchronize:
+    mode: pull
+    src: "{{ luks_keys_path }}/"
+    dest: "{{ luks_key_collection_path }}/{{ inventory_hostname }}/"
+    archive: false
+    recursive: true
+    # Updating times causes ansible to report a change
+    times: true
+  become: true
+  when: luks_key_collection_path | default(false, true)
+
+- name: Delete keys on remote machine
+  vars:
+    filename: *key
+    keypath: *keypath
+    mode: *mode
+  command: scrub -r "{{ keypath }}"
+  register: result
+  failed_when: "result.rc != 0 and 'does not exist' not in result.stderr"
+  changed_when: result.rc == 0
+  become: true
+  when:
+    - mode != "keyfile"
+  with_items: "{{ luks_devices }}"

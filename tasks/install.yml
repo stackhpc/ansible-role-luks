@@ -5,3 +5,13 @@
     state: present
   become: true
   when: ansible_os_family == "RedHat"
+
+- name: Install clevis
+  yum:
+    name:
+      - clevis-systemd
+      - clevis-luks
+      - scrub
+    state: present
+  become: true
+  when: ansible_os_family == "RedHat" and luks_devices | selectattr('mode', 'tang')

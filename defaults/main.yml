@@ -18,3 +18,6 @@ luks_action: setup
 # Controls whether or not this role should install any OS packages.
 # This may be useful if your OS is not supported.
 luks_install_dependencies: true
+
+# Directory to on control host to backup keys to
+luks_key_collection_path:
