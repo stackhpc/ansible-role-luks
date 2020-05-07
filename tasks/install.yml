@@ -1,7 +1,10 @@
 ---
 - name: Install dependencies
   package:
-    name: cryptsetup
+    name:
+      - cryptsetup
+      # for /usr/lib/systemd/system-generators/systemd-cryptsetup-generator
+      - systemd-udev
     state: present
   become: true
   when: ansible_os_family == "RedHat"
