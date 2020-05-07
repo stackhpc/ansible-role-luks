@@ -10,7 +10,7 @@
   when: ansible_os_family == "RedHat"
 
 - name: Install clevis
-  yum:
+  package:
     name:
       - clevis-systemd
       - clevis-luks
