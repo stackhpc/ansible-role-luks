@@ -1,7 +1,7 @@
 ---
 - name: Prepare
   hosts: all
-  gather_facts: false
+  gather_facts: true
   vars:
     block_devices:
       - device: /dev/loop0
@@ -9,6 +9,12 @@
       - device: /dev/loop1
         backing: /tmp/loop1
   tasks:
+    - name: Display diagnostic informaton
+      debug:
+        msg: |-
+          ansible_distribution: {{ ansible_distribution }}
+          ansible_distribution_version: {{ ansible_distribution_version }}
+
     - name: Create files to back the block devices
       command: dd if=/dev/zero of="{{ item.backing }}" bs=1024k count=100
       args:
