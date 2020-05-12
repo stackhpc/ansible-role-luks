@@ -3,11 +3,21 @@
   package:
     name:
       - cryptsetup
-      # for /usr/lib/systemd/system-generators/systemd-cryptsetup-generator
-      - systemd-udev
     state: present
   become: true
   when: ansible_os_family == "RedHat"
+
+- name: Install RedHat 8 dependencies
+  package:
+    name:
+      # For /usr/lib/systemd/system-generators/systemd-cryptsetup-generator. In
+      # RedHat 7, the was included in the systemd package.
+      - systemd-udev
+    state: present
+  become: true
+  when:
+    - ansible_os_family == "RedHat"
+    - ansible_distribution_major_version == "8"
 
 - name: Install clevis
   package:
