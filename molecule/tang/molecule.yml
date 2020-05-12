@@ -20,6 +20,8 @@ platforms:
       - "storage :file"
 provisioner:
   name: ansible
+  playbooks:
+    prepare: ../common/prepare.yml
   options:
     become: true
 

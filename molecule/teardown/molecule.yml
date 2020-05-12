@@ -19,6 +19,8 @@ platforms:
       - "random :model => 'random'"
 provisioner:
   name: ansible
+  playbooks:
+    prepare: ../common/prepare.yml
   options:
     become: true
 scenario:

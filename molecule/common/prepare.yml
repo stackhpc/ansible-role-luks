@@ -1,7 +1,7 @@
 ---
 - name: Prepare
   hosts: all
-  gather_facts: false
+  gather_facts: true
   vars:
     block_devices:
       - device: /dev/loop0
@@ -9,13 +9,17 @@
       - device: /dev/loop1
         backing: /tmp/loop1
   tasks:
+
+    - name: Import diagnostics tasks
+      import_tasks: "tasks/diagnostics.yml"
+
     - name: Create files to back the block devices
       command: dd if=/dev/zero of="{{ item.backing }}" bs=1024k count=100
       args:
         creates: "{{ item.backing }}"
       with_items: "{{ block_devices }}"
 
-    - name: Create loopback devices  # noqa: 301
+    - name: Create loopback devices  # noqa 301
       command: losetup {{ item.device }} "{{ item.backing }}"
       with_items: "{{ block_devices }}"
       become: true
