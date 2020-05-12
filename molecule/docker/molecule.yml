@@ -19,6 +19,8 @@ provisioner:
   name: ansible
   options:
     become: true
+  playbooks:
+    prepare: ../common/prepare.yml
   ansible_args:
     - --skip-tags=skip_when_testing_docker
   lint: ansible-lint
