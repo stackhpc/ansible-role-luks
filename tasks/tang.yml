@@ -16,7 +16,7 @@
 - name: Create tang pin
   # We always put it in slot 3 so we can detect it
   command: |-
-    clevis luks bind -s 3 -f -k {{ keypath }} -d {{ item.device }} tang '{ "url": "{{ item.tang_server }}", "adv": "/tmp/adv"}'
+    clevis luks bind -s 3 -f -k {{ item | luks_keypath }} -d {{ item.device }} tang '{ "url": "{{ item.tang_server }}", "adv": "/tmp/adv"}'
   become: true
   when: not result.stdout.strip() or result.rc != 0
   changed_when: false
@@ -29,7 +29,7 @@
   become: true
 
 - name: Remove the key
-  command: cryptsetup luksRemoveKey {{ item.device }} "{{ keypath }}"
+  command: cryptsetup luksRemoveKey {{ item.device }} "{{ item | luks_keypath }}"
   register: result
   changed_when: result.rc == 0
   failed_when: false

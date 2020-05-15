@@ -7,11 +7,11 @@
 - include_tasks: keysetup.yml
   vars:
     # replaces all slashes with dashes and strips the leading /
-    keysetup_keyname: &key "{{ (item.device | replace('/', '-'))[1:] }}"
+    keysetup_keyname: "{{ item | luks_key }}"
     keysetup_directory: "{{ luks_keys_path }}"
     keysetup_action: "{{ 'copy' if 'keyfile' in item else 'generate' }}"
-    ketsetup_src: "{{ item.keyfile if 'keyfile' in item else '' }}"
-    mode: &mode "{{ item.mode | default('keyfile') }}"
+    keysetup_src: "{{ item.keyfile if 'keyfile' in item else '' }}"
+    mode: "{{ item | luks_mode }}"
     dd: dd bs=512 count=4 if=/dev/random of={{ keysetup_directory }}/{{ keysetup_keyname }} iflag=fullblock
     # Old verisons of clevis have issues with long keys / some characters
     # See: https://github.com/latchset/clevis/issues/97
@@ -24,25 +24,18 @@
 
 - name: Create the luks device
   vars:
-    filename: *key
     compat: "{{ ansible_version.full is version('2.8.0', '<') }}"
   include_tasks: "{{ 'create-compat.yml' if compat else 'create.yml' }}"
 
-
 - name: Setup tang devices
-  vars:
-    filename: *key
-    keypath: &keypath "{{ luks_keys_path }}/{{ filename }}"
-    mode: *mode
   include_tasks: tang.yml
-  when: mode == "tang"
+  when: item | luks_mode == "tang"
   with_items: "{{ luks_devices }}"
 
 - name: Add the device to crypttab
   vars:
-    filename: *key
-    keypath: *keypath
-    mode: *mode
+    keypath: "{{ item | luks_keypath }}"
+    mode: "{{ item | luks_mode }}"
   crypttab:
     password: "{{ keypath if mode == 'keyfile' else 'none' }}"
     opts: "{{ '_netdev' if mode == 'tang' else omit }}"
@@ -58,14 +51,12 @@
   register: systemd_escape
 
 - name: Setup devices
-  vars:
-    mode: *mode
   systemd:
     daemon_reload: true
     state: started
     name: systemd-cryptsetup@{{ systemd_escape.escaped[item.name] }}.service
   with_items: "{{ luks_devices }}"
-  when: mode == "keyfile"
+  when: item | luks_mode == "keyfile"
   become: true
   tags: skip_when_testing_docker
 
@@ -89,15 +80,11 @@
   when: luks_key_collection_path | default(false, true)
 
 - name: Delete keys on remote machine
-  vars:
-    filename: *key
-    keypath: *keypath
-    mode: *mode
-  command: scrub -r "{{ keypath }}"
+  command: scrub -r "{{ item | luks_keypath }}"
   register: result
   failed_when: "result.rc != 0 and 'does not exist' not in result.stderr"
   changed_when: result.rc == 0
   become: true
   when:
-    - mode != "keyfile"
+    - item | luks_mode != "keyfile"
   with_items: "{{ luks_devices }}"
