@@ -80,10 +80,8 @@
   when: luks_key_collection_path | default(false, true)
 
 - name: Delete keys on remote machine
-  command: scrub -r "{{ item | luks_keypath }}"
-  register: result
-  failed_when: "result.rc != 0 and 'does not exist' not in result.stderr"
-  changed_when: result.rc == 0
+  scrub:
+    path: "{{ item | luks_keypath }}"
   become: true
   when:
     - item | luks_mode != "keyfile"
