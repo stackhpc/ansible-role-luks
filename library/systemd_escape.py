@@ -75,7 +75,7 @@ def run_module():
 
     result = dict(
         changed=False,
-        luks_devices=[]
+        escaped={},
     )
 
     result['escaped'] = escape(module)
