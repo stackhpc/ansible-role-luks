@@ -6,6 +6,6 @@
       - device: /dev/loop0
         name: cryptotest
       - device: /dev/loop1
-        name: cryptotest1
+        name: crypto-test1
   roles:
     - role: stackhpc.luks

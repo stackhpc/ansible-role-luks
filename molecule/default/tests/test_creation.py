@@ -9,5 +9,5 @@ testinfra_hosts = testinfra.utils.ansible_runner.AnsibleRunner(
 def test_crypto_devices(host):
     f = host.file('/dev/mapper/cryptotest')
     assert f.exists
-    f = host.file('/dev/mapper/cryptotest1')
+    f = host.file('/dev/mapper/crypto-test1')
     assert f.exists

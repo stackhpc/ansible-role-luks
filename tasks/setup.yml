@@ -52,13 +52,18 @@
   become: true
   with_items: "{{ luks_devices }}"
 
+- name: Escape device names
+  systemd_escape:
+    strings: "{{ luks_devices | map(attribute='name') | list }}"
+  register: systemd_escape
+
 - name: Setup devices
   vars:
     mode: *mode
   systemd:
     daemon_reload: true
     state: started
-    name: systemd-cryptsetup@{{ item.name }}.service
+    name: systemd-cryptsetup@{{ systemd_escape.escaped[item.name] }}.service
   with_items: "{{ luks_devices }}"
   when: mode == "keyfile"
   become: true

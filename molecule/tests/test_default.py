@@ -16,7 +16,7 @@ def test_key_files_exist(host):
 
 @pytest.mark.parametrize('file, content', [
     ("/etc/crypttab", "cryptotest /dev/loop0 /etc/luks-keys/dev-loop0"),
-    ("/etc/crypttab", "cryptotest1 /dev/loop1 /etc/luks-keys/dev-loop1")
+    ("/etc/crypttab", "crypto-test1 /dev/loop1 /etc/luks-keys/dev-loop1")
 ])
 def test_crypttab(host, file, content):
     file = host.file(file)
