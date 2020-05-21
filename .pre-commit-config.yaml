@@ -9,6 +9,8 @@ repos:
     sha: v2.2.3
     hooks:
       - id: trailing-whitespace
+        # trailing whitespace is in the original output
+        exclude: tests/samples/luksdump/luksv1.txt
       - id: end-of-file-fixer
       - id: check-yaml
       - id: detect-private-key

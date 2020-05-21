@@ -5,20 +5,18 @@
     src: "{{ item.tang_adv }}"
     dest: /tmp/adv
 
-- name: Check the if slot used
-  command: |-
-    luksmeta show -d {{ item.device }} -s 3
-  register: result
-  failed_when: false
+- name: Dump luks header
+  luksdump:
+    path: "{{ item.device }}"
   become: true
-  changed_when: false
+  register: luksdump
 
 - name: Create tang pin
   # We always put it in slot 3 so we can detect it
   command: |-
     clevis luks bind -s 3 -f -k {{ item | luks_keypath }} -d {{ item.device }} tang '{ "url": "{{ item.tang_server }}", "adv": "/tmp/adv"}'
   become: true
-  when: not result.stdout.strip() or result.rc != 0
+  when: 3 not in luksdump.keyslots
   changed_when: false
 
 - name: Open the device

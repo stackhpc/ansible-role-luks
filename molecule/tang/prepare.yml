@@ -1,0 +1,31 @@
+---
+
+- import_playbook: ../common/prepare.yml
+
+- name: Setup docker
+  hosts: all
+  vars:
+    ansible_become: true
+    pip_package: "{{ 'python3-pip' if ansible_distribution_major_version | int >= 8 else 'python-pip' }}"
+    pip_install_packages:
+      - name: docker
+  pre_tasks:
+    - name: Install epel
+      package:
+        name: epel-release
+  roles:
+    - geerlingguy.pip
+    - geerlingguy.docker
+
+- hosts: all
+  tasks:
+    - name: start tang server
+      docker_container:
+        name: stackhpc_luks_tang_molecule
+        image: malaiwah/tang
+        state: started
+        volumes:
+          - "tang:/var/db/tang"
+        ports:
+          - "1234:80"
+      become: true

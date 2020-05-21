@@ -1,0 +1,27 @@
+LUKS header information for /dev/vdb
+
+Version:        1
+Cipher name:    aes
+Cipher mode:    xts-plain64
+Hash spec:      sha256
+Payload offset: 4096
+MK bits:        256
+MK digest:      35 5f c8 f0 bf fd 22 ac 7e cc 06 28 bd 0a eb 9a f5 fa 37 7f 
+MK salt:        37 91 95 f8 a0 a7 4f af ef e8 8f 37 41 f8 22 68 
+                99 3f 54 28 64 0f 46 55 48 1e cf 4b 37 8a 6e 60 
+MK iterations:  51848
+UUID:           a860cf7e-d1ca-43e3-aaf6-e392a4a72112
+
+Key Slot 0: DISABLED
+Key Slot 1: DISABLED
+Key Slot 2: DISABLED
+Key Slot 3: ENABLED
+        Iterations:             830884
+        Salt:                   29 79 42 ae e5 eb 83 08 a5 95 9c 23 d6 66 6f ad 
+                                f8 c7 a8 b2 2b 5b 71 a0 05 90 d9 58 6d 11 b3 2f 
+        Key material offset:    776
+        AF stripes:             4000
+Key Slot 4: DISABLED
+Key Slot 5: DISABLED
+Key Slot 6: DISABLED
+Key Slot 7: DISABLED
