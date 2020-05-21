@@ -4,7 +4,7 @@
   luks_device:
     device: "{{ item.device }}"
     state: "present"
-    keyfile: "{{ luks_keys_path }}/{{ filename }}"
+    keyfile: "{{ item | luks_keypath }}"
   with_items: "{{ luks_devices }}"
   tags: skip_when_testing_docker
   become: true

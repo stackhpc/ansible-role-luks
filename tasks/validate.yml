@@ -12,5 +12,5 @@
     that:
       - "'tang_server' in item"
       - "'tang_adv' in item"
-  when: item.mode | default('keyfile') == "tang"
+  when: item | luks_mode == "tang"
   with_items: "{{ luks_devices }}"
