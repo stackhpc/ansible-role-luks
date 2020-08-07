@@ -9,13 +9,13 @@
         name: cryptotest1
   tasks:
     - include_role:
-        name: stackhpc.luks
+        name: ansible-role-luks
     - name: Mount one device  # noqa 301
       shell: |-
         mkfs.ext4 /dev/mapper/cryptotest
         mount /dev/mapper/cryptotest /mnt
       become: true
     - include_role:
-        name: stackhpc.luks
+        name: ansible-role-luks
       vars:
         luks_action: teardown-unmounted
