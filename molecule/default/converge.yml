@@ -8,4 +8,4 @@
       - device: /dev/loop1
         name: crypto-test1
   roles:
-    - role: stackhpc.luks
+    - role: ansible-role-luks
