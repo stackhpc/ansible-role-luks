@@ -10,6 +10,9 @@ env:
   - SCENARIO=default MOLECULE_IMAGE=centos/8
   - SCENARIO=teardown MOLECULE_IMAGE=centos/8
   - SCENARIO=tang MOLECULE_IMAGE=centos/8
+  - SCENARIO=default MOLECULE_IMAGE=ubuntu/focal64
+  - SCENARIO=teardown MOLECULE_IMAGE=ubuntu/focal64
+  - SCENARIO=tang MOLECULE_IMAGE=ubuntu/focal64
 
 install:
   # Install libvrt & KVM
