@@ -4,6 +4,7 @@
   copy:
     src: "{{ item.tang_adv }}"
     dest: /tmp/adv
+    mode: "0600"
 
 - name: Dump luks header
   luksdump:
