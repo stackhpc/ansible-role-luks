@@ -25,7 +25,7 @@ jobs:
 
     steps:
       - name: Install packages
-        run: sudo apt-get update && sudo apt-get install -y bridge-utils dnsmasq-base ebtables libvirt-bin libvirt-dev qemu-kvm qemu-utils ruby-dev
+        run: sudo apt-get update && sudo apt-get install -y bridge-utils dnsmasq-base ebtables libvirt-bin libvirt-dev qemu-kvm qemu-utils ruby-dev python3-setuptools
 
       # Download Vagrant & Install Vagrant package
       - name: Download Vagrant
@@ -37,10 +37,13 @@ jobs:
       - name: Install vagrant-libvirt Vagrant plugin
         run: sudo vagrant plugin install vagrant-libvirt
 
+      - name: Change ownership of .vagrant.d
+        run: "sudo chown -R $USER: ~/.vagrant.d"
+
       - name: Check vagrant presence
         run: |
-          sudo vagrant version
-          sudo vagrant plugin list
+          vagrant version
+          vagrant plugin list
 
       - name: Check out the codebase.
         uses: actions/checkout@v2
@@ -51,7 +54,7 @@ jobs:
           python-version: '3.x'
 
       - name: Install test dependencies.
-        run: pip3 install molecule-vagrant yamllint ansible-lint
+        run: pip3 install -r requirements.txt -r test-requirements.txt
 
       - name: Display ansible version
         run: ansible --version
@@ -63,7 +66,7 @@ jobs:
         run: printf '[defaults]\nroles_path=../' >ansible.cfg
 
       - name: Run Molecule tests.
-        run: molecule test -s ${{ matrix.scenario }}
+        run: sudo -E $(which molecule) test -s ${{ matrix.scenario }}
         env:
           PY_COLORS: '1'
           ANSIBLE_FORCE_COLOR: '1'
