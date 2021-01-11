@@ -64,6 +64,7 @@
   file:
     path: "{{ luks_key_collection_path }}/{{ inventory_hostname }}"
     state: directory
+    mode: "0600"
   when: luks_key_collection_path | default(false, true)
   delegate_to: localhost
 

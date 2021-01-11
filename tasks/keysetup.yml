@@ -30,6 +30,9 @@
   copy:
     src: "{{ keysetup_src }}"
     dest: "{{ keysetup_directory }}/{{ keysetup_keyname }}"
+    mode: "0660"
+    owner: root
+    group: root
   become: true
   when:
     - keysetup_action == "copy"
