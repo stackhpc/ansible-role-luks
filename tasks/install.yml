@@ -1,30 +1,22 @@
 ---
 - name: Install dependencies
+  vars:
+    # List of groups of packages that may be conditionally installed.
+    package_groups:
+      - packages:
+          - cryptsetup
+        required: true
+      - packages:
+          # For /usr/lib/systemd/system-generators/systemd-cryptsetup-generator. In
+          # RedHat 7, the was included in the systemd package.
+          - systemd-udev
+        required: "{{ ansible_os_family == 'RedHat' and ansible_distribution_major_version == '8' }}"
+      - packages:
+          - clevis-systemd
+          - clevis-luks
+          - scrub
+        required: "{{ luks_devices | selectattr('mode', 'defined') | selectattr('mode', 'equalto', 'tang') | list | length > 0 }}"
   package:
-    name:
-      - cryptsetup
+    name: "{{ package_groups | selectattr('required') | map(attribute='packages') | flatten | list }}"
     state: present
   become: true
-  when: ansible_os_family == "RedHat"
-
-- name: Install RedHat 8 dependencies
-  package:
-    name:
-      # For /usr/lib/systemd/system-generators/systemd-cryptsetup-generator. In
-      # RedHat 7, the was included in the systemd package.
-      - systemd-udev
-    state: present
-  become: true
-  when:
-    - ansible_os_family == "RedHat"
-    - ansible_distribution_major_version == "8"
-
-- name: Install clevis
-  package:
-    name:
-      - clevis-systemd
-      - clevis-luks
-      - scrub
-    state: present
-  become: true
-  when: ansible_os_family == "RedHat" and luks_devices | selectattr('mode', 'tang')
