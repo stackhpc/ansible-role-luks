@@ -14,6 +14,11 @@
       package:
         name: epel-release
       when: ansible_os_family == 'RedHat'
+
+    - name: Update apt cache
+      apt:
+        update_cache: true
+      when: ansible_os_family == 'Debian'
   roles:
     - geerlingguy.pip
     - geerlingguy.docker
