@@ -10,9 +10,10 @@ env:
   - SCENARIO=default MOLECULE_IMAGE=centos/8
   - SCENARIO=teardown MOLECULE_IMAGE=centos/8
   - SCENARIO=tang MOLECULE_IMAGE=centos/8
-  - SCENARIO=default MOLECULE_IMAGE=ubuntu/focal64
-  - SCENARIO=teardown MOLECULE_IMAGE=ubuntu/focal64
-  - SCENARIO=tang MOLECULE_IMAGE=ubuntu/focal64
+  # Official ubuntu/focal64 image does not support the libvirt provider.
+  - SCENARIO=default MOLECULE_IMAGE=generic/ubuntu2004
+  - SCENARIO=teardown MOLECULE_IMAGE=generic/ubuntu2004
+  - SCENARIO=tang MOLECULE_IMAGE=generic/ubuntu2004
 
 install:
   # Install libvrt & KVM
