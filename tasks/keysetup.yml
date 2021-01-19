@@ -18,9 +18,10 @@
   when: isluks.rc != 0
 
 - name: Generate a random key file  # noqa 305
-  shell: "{{ keysetup_cmd }}"
-  args:
+  shell:
+    cmd: "{{ keysetup_cmd }}"
     creates: "{{ keysetup_directory }}/{{ keysetup_keyname }}"
+    executable: /bin/bash
   become: true
   when:
     - keysetup_action == "generate"
