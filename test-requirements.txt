@@ -7,3 +7,4 @@ docker
 ansible-lint
 flake8
 testinfra
+yamllint
