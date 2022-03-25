@@ -15,7 +15,11 @@
 import os
 
 from ansible import errors
-import jinja2
+# NOTE: jinja2 3.1.0 dropped contextfilter in favour of pass_context.
+try:
+    from jinja2 import pass_context
+except ImportError:
+    from jinja2 import contextfilter as pass_context
 
 
 def _get_hostvar(context, var_name, inventory_hostname=None):
@@ -29,7 +33,7 @@ def _get_hostvar(context, var_name, inventory_hostname=None):
     return namespace.get(var_name)
 
 
-@jinja2.contextfilter
+@pass_context
 def luks_mode(context, device):
     """Returns a string represent the mode"""
     if "mode" in device:
@@ -37,13 +41,13 @@ def luks_mode(context, device):
     return "keyfile"
 
 
-@jinja2.contextfilter
+@pass_context
 def luks_key(context, device):
     """Returns name of keyfile"""
     return device["device"].replace('/', '-')[1:]
 
 
-@jinja2.contextfilter
+@pass_context
 def luks_keypath(context, device):
     """Returns full path to keyfile"""
     directory = _get_hostvar(context, "luks_keys_path")
