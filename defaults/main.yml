@@ -11,6 +11,7 @@
 #         'keyfile'.
 # - tang_adv: (optional) Tang advertisement. Required if 'mode' is 'tang'.
 # - tang_server: (optional) Tang server. Required if 'mode' is 'tang'.
+# - options: (optional) Options to add in /etc/crypttab entry.  Default is empty.
 luks_devices: []
 
 # The directory where the keys are stored

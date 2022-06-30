@@ -15,7 +15,11 @@
           - clevis-systemd
           - clevis-luks
           - scrub
-        required: "{{ luks_devices | selectattr('mode', 'defined') | selectattr('mode', 'equalto', 'tang') | list | length > 0 }}"
+        required: "{{ luks_devices | selectattr('mode', 'defined') | selectattr('mode', 'in', 'tang,tpm2') | list | length > 0 }}"
+      - packages:
+          - clevis-dracut
+          - nmap-ncat
+        required: "{{ luks_devices | selectattr('mode', 'defined') | selectattr('mode', 'in', 'tpm2') | list | length > 0 }}"
   package:
     name: "{{ package_groups | selectattr('required') | map(attribute='packages') | flatten | list }}"
     state: present

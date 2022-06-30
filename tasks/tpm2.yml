@@ -1,0 +1,30 @@
+---
+
+- name: Dump luks header
+  luksdump:
+    path: "{{ item.device }}"
+  become: true
+  register: luksdump
+
+- name: Create TPM2 pin
+  # We always put it in slot 3 so we can detect it
+  command: |-
+    clevis luks bind -s 3 -f -k {{ item | luks_keypath }} -d {{ item.device }} tpm2 '{"hash":"sha1","key":"rsa"}' 
+  become: true
+  when: 3 not in luksdump.keyslots
+  changed_when: false
+
+- name: Open the device
+  command: clevis luks unlock -d {{ item.device }} -n "{{ item.name }}"
+  register: result
+  changed_when: result.rc == 0
+  failed_when: "result.rc != 0 and 'already exists' not in result.stderr"
+  become: true
+
+- name: Remove the key
+  command: cryptsetup luksRemoveKey {{ item.device }} "{{ item | luks_keypath }}"
+  register: result
+  changed_when: result.rc == 0
+  failed_when: false
+  when: item.tpm2_remove_key | default(true)
+  become: true
