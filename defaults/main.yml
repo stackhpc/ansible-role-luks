@@ -7,10 +7,12 @@
 #          `/dev/mapper/crypto`
 # - device: Absolute path to the block device you want to encrypt, e.g: /dev/sda1
 # - keyfile: (optional) Path to a pre-generated keyfile. Key generation is skipped.
-# - mode: (optional) Encryption mode. One of 'keyfile' or 'tang'. Default is
+# - mode: (optional) Encryption mode. One of 'keyfile', 'tpm2' or 'tang'. Default is
 #         'keyfile'.
 # - tang_adv: (optional) Tang advertisement. Required if 'mode' is 'tang'.
 # - tang_server: (optional) Tang server. Required if 'mode' is 'tang'.
+# - tpm2_remove_key: (optional) when using `tpm2` mode, optionally don't remove the
+#   master signing key slot, providing alternative means of recovery.  Default is true.
 # - options: (optional) Options to add in /etc/crypttab entry.  Default is empty.
 luks_devices: []
 
