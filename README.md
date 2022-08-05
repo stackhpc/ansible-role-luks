@@ -1,7 +1,8 @@
 [![Build Status](https://travis-ci.com/stackhpc/ansible-role-luks.svg?branch=master)](https://travis-ci.com/stackhpc/ansible-role-luks)
 
+====
 luks
-=========
+====
 
 Sets up LUKS encryption.
 
@@ -134,13 +135,26 @@ For example:
 Initrd Interaction
 ==================
 
-Setting options for `/etc/crypttab` can be useful if an encrypted
-device should be unlocked during the initial ramdisk, before the rootfs
-is mounted.  Dracut interprets the `force` option as enforcing the
-inclusion of details of this encrypted device in the ramdisk `crypttab`
+Setting options (as in the example above) for `/etc/crypttab` can be
+useful if an encrypted device should be unlocked during the initial
+ramdisk, before the rootfs is mounted.  Dracut interprets the `force`
+option as enforcing the inclusion of details of this encrypted device
+in the ramdisk `crypttab`.
+
+The line in `/etc/crypttab` could look like this:
+
+```
+nvme_crypt /dev/md0 none force
+```
 
 After constructing LUKS encrypted devices, the ramdisk image should be
-regenerated.
+regenerated.  Parameters to specify a `hostonly` ramdisk can be helpful.
+Also, force the inclusion of `/etc/mdadm.conf` and `/etc/crypttab`
+can be helpful if the encrypted device is a secondary device:
+
+```
+dracut --force --hostonly --mdadmconf --add-device /dev/md0
+```
 
 Testing
 -------
