@@ -1,5 +1,6 @@
+====
 luks
-=========
+====
 
 Sets up LUKS encryption.
 
@@ -86,7 +87,7 @@ You can run a tang server with:
 docker run -d -p 8080:80 -v $(pwd)/persistent:/var/db/tang malaiwah/tang
 ```
 
-An example playbook:
+An example playbook, setting the `mode` to `tang`:
 
 ```
 - name: Converge
@@ -109,6 +110,49 @@ curl 192.168.121.1:8080/adv -O
 ```
 
 This is used to verify the server identity.
+
+Trusted Platform Module (TPM)
+-----------------------------
+
+Clevis also supports using a motherboard TPM, version 2.  The process
+is simlar to using Tang.
+
+For example:
+
+```
+- hosts: compute
+  vars:
+    luks_devices:
+      - name: nvme_crypt
+	device: /dev/md0
+	mode: tpm2
+	tpm2_remove_key: false
+	options: ["force"]
+```
+
+Initrd Interaction
+==================
+
+Setting options (as in the example above) for `/etc/crypttab` can be
+useful if an encrypted device should be unlocked during the initial
+ramdisk, before the rootfs is mounted.  Dracut interprets the `force`
+option as enforcing the inclusion of details of this encrypted device
+in the ramdisk `crypttab`.
+
+The line in `/etc/crypttab` could look like this:
+
+```
+nvme_crypt /dev/md0 none force
+```
+
+After constructing LUKS encrypted devices, the ramdisk image should be
+regenerated.  Parameters to specify a `hostonly` ramdisk can be helpful.
+Also, force the inclusion of `/etc/mdadm.conf` and `/etc/crypttab`
+can be helpful if the encrypted device is a secondary device:
+
+```
+dracut --force --hostonly --mdadmconf --add-device /dev/md0
+```
 
 Testing
 -------

@@ -32,13 +32,24 @@
   when: item | luks_mode == "tang"
   with_items: "{{ luks_devices }}"
 
+- name: Setup tpm2 devices
+  include_tasks: tpm2.yml
+  when: item | luks_mode == "tpm2"
+  with_items: "{{ luks_devices }}"
+
+- name: Construct crypttab options
+  set_fact:
+    luks_options: "{{ luks_options|default({}) | combine( {item.name: (item.options | default(['_netdev'] if item.mode == 'tang' else []) | join(','))}) }}"
+  with_items: "{{ luks_devices }}"
+  when: "'options' in {{ item }} or item.mode == 'tang'"
+
 - name: Add the device to crypttab
   vars:
     keypath: "{{ item | luks_keypath }}"
     mode: "{{ item | luks_mode }}"
   crypttab:
     password: "{{ keypath if mode == 'keyfile' else 'none' }}"
-    opts: "{{ '_netdev' if mode == 'tang' else omit }}"
+    opts: "{{ luks_options[item.name] | default(omit) }}"
     backing_device: "{{ item.device }}"
     name: "{{ item.name }}"
     state: present
@@ -64,7 +75,7 @@
   file:
     path: "{{ luks_key_collection_path }}/{{ inventory_hostname }}"
     state: directory
-    mode: "0600"
+    mode: "0700"
   when: luks_key_collection_path | default(false, true)
   delegate_to: localhost
 
