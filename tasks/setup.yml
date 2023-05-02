@@ -79,6 +79,11 @@
   when: luks_key_collection_path | default(false, true)
   delegate_to: localhost
 
+- name: Check to see if key exists
+  stat:
+    path: luks_keys_path
+  register: luks_key_path_result
+
 - name: Collect keys
   synchronize:
     mode: pull
@@ -89,7 +94,9 @@
     # Updating times causes ansible to report a change
     times: true
   become: true
-  when: luks_key_collection_path | default(false, true)
+  when: 
+    - luks_key_collection_path | default(false, true)
+    - luks_key_path_result.stat.isdir is defined and luks_key_path_result.stat.isdir
 
 - name: Delete keys on remote machine
   scrub:
