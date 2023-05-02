@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.com/stackhpc/ansible-role-luks.svg?branch=master)](https://travis-ci.com/stackhpc/ansible-role-luks)
-
 ====
 luks
 ====
