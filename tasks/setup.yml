@@ -81,7 +81,7 @@
 
 - name: Check to see if key exists
   stat:
-    path: luks_keys_path
+    path: "{{ luks_keys_path }}"
   register: luks_key_path_result
 
 - name: Collect keys
