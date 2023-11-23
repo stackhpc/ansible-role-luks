@@ -1,0 +1,73 @@
+---
+name: CI
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+
+jobs:
+
+  test:
+    name: ${{ matrix.scenario }}/${{ matrix.image }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        image:
+          - 'centos:8.2.2004'
+          #- 'centos:8.3.2011'
+          #- 'centos:7'
+        scenario:
+          - default
+          #- teardown
+          #- tang
+
+    steps:
+      - name: Install packages
+        run: sudo apt-get update && sudo apt-get install -y bridge-utils dnsmasq-base ebtables libvirt-bin libvirt-dev qemu-kvm qemu-utils ruby-dev python3-setuptools
+
+      # Download Vagrant & Install Vagrant package
+      - name: Download Vagrant
+        run: sudo wget -nv https://releases.hashicorp.com/vagrant/2.2.14/vagrant_2.2.14_x86_64.deb
+
+      - name: Install Vagrant
+        run: sudo dpkg -i vagrant_2.2.14_x86_64.deb
+
+      - name: Install vagrant-libvirt Vagrant plugin
+        run: sudo vagrant plugin install vagrant-libvirt
+
+      - name: Change ownership of .vagrant.d
+        run: "sudo chown -R $USER: ~/.vagrant.d"
+
+      - name: Check vagrant presence
+        run: |
+          vagrant version
+          vagrant plugin list
+
+      - name: Check out the codebase.
+        uses: actions/checkout@v2
+
+      - name: Set up Python 3.
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install test dependencies.
+        run: pip3 install -r requirements.txt -r test-requirements.txt
+
+      - name: Display ansible version
+        run: ansible --version
+
+      - name: Compensate for repo name being different to the role
+        run: ln -s $(pwd) ../stackhpc.luks
+
+      - name: Create ansible.cfg with correct roles_path
+        run: printf '[defaults]\nroles_path=../' >ansible.cfg
+
+      - name: Run Molecule tests.
+        run: sudo -E $(which molecule) test -s ${{ matrix.scenario }}
+        env:
+          PY_COLORS: '1'
+          ANSIBLE_FORCE_COLOR: '1'
+          MOLECULE_IMAGE: ${{ matrix.image }}
