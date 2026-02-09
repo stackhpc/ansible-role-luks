@@ -39,9 +39,9 @@
 
 - name: Construct crypttab options
   set_fact:
-    luks_options: "{{ luks_options|default({}) | combine( {item.name: (item.options | default(['_netdev'] if item.mode == 'tang' else []) | join(','))}) }}"
+    luks_options: "{{ luks_options|default({}) | combine( {item.name: (item.options | default(['_netdev'] if item | luks_mode == 'tang' else []) | join(','))}) }}"
   with_items: "{{ luks_devices }}"
-  when: "'options' in {{ item }} or item.mode == 'tang'"
+  when: "'options' in item or item | luks_mode == 'tang'"
 
 - name: Add the device to crypttab
   vars:
